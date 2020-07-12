@@ -50,7 +50,8 @@ typedef struct queueHead {
 /*
  * Function to initialize the Queue metadata head to the appropriate function pointers.
  * Allocates memory to the struct, unless any of the function pointers are NULL. In this
- * case, NULL is returned instead and no memory is allocated.
+ * case, NULL is returned instead and no memory is allocated. NULL is also returned
+ * if any calls to `malloc` fail.
  *
  * The Queue provides an interface to a generic collection of data. The two 
  * function pointers allow the struct to print and delete its data.
@@ -67,6 +68,7 @@ Queue *queueNew(void (*deleteFunc)(void *), char *(*printFunc)(void *));
 
 /*
  * Allocates memory for a new QueueNode struct and returns a pointer to it.
+ * Returns NULL instead if any calls to `malloc` fail.
  */
 QueueNode *queueNodeNew(void *data);
 
@@ -85,8 +87,16 @@ void queueFree(Queue *queue);
 
 /*
  * Adds the data to the back of the queue.
+ * If the enqueue operation can't be completed for whatever reason,
+ * this function returns `false`. Otherwise, it returns `true` for a
+ * successful enqueue.
+ *
+ * `false` may be returned if `queue` is NULL, or if memory can't
+ * be allocated to create a new QueueNode. Both of these scenarios
+ * are incredibly unlikely; assuming proper use of the functions
+ * in this library and sufficient memory is available to the system.
  */
-void enqueue(Queue *queue, void *data);
+bool enqueue(Queue *queue, void *data);
 
 
 /*

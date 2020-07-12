@@ -63,12 +63,17 @@ void queueFree(Queue *queue) {
 }
 
 
-void enqueue(Queue *queue, void *data) {
+bool enqueue(Queue *queue, void *data) {
 	if (queue == NULL) {
-		return;
+		return false;
 	}
 
 	QueueNode *toEnqueue = queueNodeNew(data);
+
+	// Can't assume malloc works every time, no matter how unlikely
+	if (toEnqueue == NULL) {
+		return false;
+	}
 
 	// Enqueueing a node is slightly different if the queue is empty
 	if (queueIsEmpty(queue)) {
@@ -83,6 +88,7 @@ void enqueue(Queue *queue, void *data) {
 	
 	queue->back = toEnqueue;
 	(queue->length)++;
+	return true;
 }
 
 
