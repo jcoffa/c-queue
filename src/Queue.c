@@ -39,47 +39,227 @@ QueueNode *queueNodeNew(void *data) {
 }
 
 
-void queueClear(Queue *queue);
+void queueClear(Queue *queue) {
+	if (queue == NULL) {
+		return;
+	}
+
+	void *toFree;
+	while ((toFree = dequeue(queue)) != NULL) {
+		// dequeue already frees the QueueNode,
+		// so we only have to free the data it held
+		queue->deleteData(toFree);
+	}
+}
 
 
-void queueFree(Queue *queue);
+void queueFree(Queue *queue) {
+	if (queue == NULL) {
+		return;
+	}
+
+	queueClear(queue);
+	free(queue);
+}
 
 
-void enqueue(Queue *queue, void *data);
+void enqueue(Queue *queue, void *data) {
+	if (queue == NULL) {
+		return;
+	}
+
+	QueueNode *toEnqueue = queueNodeNew(data);
+
+	// Enqueueing a node is slightly different if the queue is empty
+	if (queueIsEmpty(queue)) {
+		// When a queue is empty, its front node is also its back node
+		queue->front = toEnqueue;
+	} else {
+		// Make the new node and the previous node that was at the end
+		// point to eachother
+		toEnqueue->previous = queue->back;
+		queue->back->next = toEnqueue;
+	}
+	
+	queue->back = toEnqueue;
+	(queue->length)++;
+}
 
 
-void *queuePeekFront(const Queue *queue);
+void *dequeue(Queue *queue) {
+	if (queue == NULL || queueIsEmpty(queue)) {
+		return NULL;
+	}
+
+	QueueNode *front = queue->front;
+	void *toReturn = front->data;
+
+	// Update the pointers in the queue and its front node
+	if (queue->front == queue->back) {
+		// There was 1 node in the queue, and now there are 0
+		queue->front = NULL;
+		queue->back = NULL;
+	} else {
+		// There was 2 or more nodes in the queue
+		queue->front = queue->front->next;
+		queue->front->previous = NULL;
+	}
+
+	free(front);
+	(queue->length)--;
+
+	return toReturn;
+}
 
 
-void *queuePeekBack(const Queue *queue);
+void *queuePeekFront(const Queue *queue) {
+	if (queue == NULL || queueIsEmpty(queue)) {
+		return NULL;
+	}
+
+	return queue->front->data;
+}
 
 
-void *dequeue(Queue *queue);
+void *queuePeekBack(const Queue *queue) {
+	if (queue == NULL || queueIsEmpty(queue)) {
+		return NULL;
+	}
+
+	return queue->back->data;
+}
 
 
-unsigned int queueGetLength(const Queue *queue);
+unsigned int queueGetLength(const Queue *queue) {
+	if (queue == NULL) {
+		return 0;
+	}
+
+	return queue->length;
+}
 
 
-bool queueIsEmpty(const Queue *queue);
+bool queueIsEmpty(const Queue *queue) {
+	return queueGetLength(queue) == 0;
+}
 
 
-char *queueFrontToString(const Queue *queue);
+char *queueFrontToString(const Queue *queue) {
+	if (queue == NULL) {
+		return NULL;
+	}
+
+	char *toReturn;
+	if (queueIsEmpty(queue)) {
+		toReturn = malloc(sizeof(char));
+		toReturn[0] = '\0';
+	} else {
+		toReturn = queue->printData(queue->front->data);
+	}
+
+	return toReturn;
+}
 
 
-char *queueBackToString(const Queue *queue);
+char *queueBackToString(const Queue *queue) {
+	if (queue == NULL) {
+		return NULL;
+	}
+
+	char *toReturn;
+	if (queueIsEmpty(queue)) {
+		toReturn = malloc(sizeof(char));
+		toReturn[0] = '\0';
+	} else {
+		toReturn = queue->printData(queue->back->data);
+	}
+
+	return toReturn;
+}
 
 
-void queuePrintFront(const Queue *queue);
+void queuePrintFront(const Queue *queue) {
+	char *toPrint = queueFrontToString(queue);
+	if (toPrint != NULL) {
+		printf("%s\n", toPrint);
+		free(toPrint);
+	}
+}
 
 
-void queuePrintBack(const Queue *queue);
+void queuePrintBack(const Queue *queue) {
+	char *toPrint = queueBackToString(queue);
+	if (toPrint != NULL) {
+		printf("%s\n", toPrint);
+		free(toPrint);
+	}
+}
 
 
-char *queueToString(const Queue *queue);
+char *queueToString(const Queue *queue) {
+	if (queue == NULL) {
+		return NULL;
+	}
+
+	// Start with the front of the queue
+	char *toReturn = queueFrontToString(queue);
+	size_t length = strlen(toReturn);
+
+	// Prepare to iterate over the rest of the queue beyond the front
+	QueueNode *cur;
+	if (queueIsEmpty(queue)) {
+		// If the queue is empty then `cur = queue->front->next`
+		// will error out or segfault since `queue->front` is NULL,
+		// so this guard is necessary
+		cur = NULL;
+	} else {
+		cur = queue->front->next;
+	}
+
+	while (cur != NULL) {
+		char *nodeStr = queue->printData(cur->data);
+		length += strlen(nodeStr) + 1;	// +1 for newline
+		toReturn = realloc(toReturn, length + 1);	// +1 for null terminator
+		strcat(toReturn, "\n");
+		strcat(toReturn, nodeStr);
+		free(nodeStr);
+
+		cur = cur->next;
+	}
+
+	return toReturn;
+}
 
 
-void queuePrint(const Queue *queue);
+void queuePrint(const Queue *queue) {
+	char *toPrint = queueToString(queue);
+	if (toPrint != NULL) {
+		printf("%s\n", toPrint);
+		free(toPrint);
+	}
+}
 
 
-void queueMap(Queue *queue, void (*func)(QueueNode *));
+void queueMapNodes(Queue *queue, void (*func)(QueueNode *)) {
+	if (queue == NULL) {
+		return;
+	}
+
+	QueueNode *cur = queue->front;
+	while (cur != NULL) {
+		func(cur);
+	}
+}
+
+
+void queueMapData(Queue *queue, void (*func)(void *)) {
+	if (queue == NULL) {
+		return;
+	}
+
+	QueueNode *cur = queue->front;
+	while (cur != NULL) {
+		func(cur->data);
+	}
+}
 

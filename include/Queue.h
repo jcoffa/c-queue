@@ -90,6 +90,12 @@ void enqueue(Queue *queue, void *data);
 
 
 /*
+ * Returns the front of the queue after removing it from the queue.
+ */
+void *dequeue(Queue *queue);
+
+
+/*
  * Returns the front of the queue without removing it.
  */
 void *queuePeekFront(const Queue *queue);
@@ -99,12 +105,6 @@ void *queuePeekFront(const Queue *queue);
  * Returns the back of the queue without removing it.
  */
 void *queuePeekBack(const Queue *queue);
-
-
-/*
- * Returns the front of the queue after removing it from the queue.
- */
-void *dequeue(Queue *queue);
 
 
 /*
@@ -174,7 +174,14 @@ void queuePrint(const Queue *queue);
  * Execute a function `func` on each node in the queue
  * starting from the front and working towards the back.
  */
-void queueMap(Queue *queue, void (*func)(QueueNode *));
+void queueMapNode(Queue *queue, void (*func)(QueueNode *));
+
+
+/*
+ * Execute a function `func` on each data item in the queue
+ * starting form the front and working towards the back.
+ */
+void queueMapData(Queue *queue, void (*func)(void *));
 
 #endif	// QUEUE_H
 
