@@ -1,10 +1,42 @@
 #include "Queue.h"
 
 
-Queue *queueNew(void (*deleteFunc)(void *), char *(*printFunc)(void *));
+Queue *queueNew(void (*deleteFunc)(void *), char *(*printFunc)(void *)) {
+	if (deleteFunc == NULL || printFunc == NULL) {
+		return NULL;
+	}
+
+	Queue *toReturn = malloc(sizeof(Queue));
+
+	// Can't assume malloc works every time, no mater how unlikely
+	if (toReturn == NULL) {
+		return NULL;
+	}
+
+	toReturn->front = NULL;
+	toReturn->back = NULL;
+	toReturn->length = 0;
+	toReturn->deleteData = deleteFunc;
+	toReturn->printData = printFunc;
+
+	return toReturn;
+}
 
 
-QueueNode *queueNodeNew(void *data);
+QueueNode *queueNodeNew(void *data) {
+	QueueNode *toReturn = malloc(sizeof(QueueNode));
+
+	// Can't assume malloc works every time, no matter how unlikely
+	if (toReturn == NULL) {
+		return NULL;
+	}
+
+	toReturn->data = data;
+	toReturn->previous = NULL;
+	toReturn->next = NULL;
+
+	return toReturn;
+}
 
 
 void queueClear(Queue *queue);
