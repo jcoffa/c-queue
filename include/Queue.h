@@ -12,9 +12,7 @@
 
 /*
  * This queue implementation is a "Linked List Queue" (often abbreviated to "Linked Queue"),
- * which uses a linked list to store a collection of elements.
- * More specifically, this implementation is a "Doubly Linked Queue", since this structure
- * is backed by a doubly-linked list.
+ * which uses a backing linked list to store its collection of elements.
  *
  * This approach, in contrast to the "Circular Array Queue", is typically more memory efficient
  * for large queues (because memory is allocated per-element instead of having lots of
@@ -26,7 +24,6 @@
  */
 typedef struct queueNode {
 	void *data;
-	struct queueNode *previous;
 	struct queueNode *next;
 } QueueNode;
 

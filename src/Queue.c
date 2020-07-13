@@ -32,7 +32,6 @@ QueueNode *queueNodeNew(void *data) {
 	}
 
 	toReturn->data = data;
-	toReturn->previous = NULL;
 	toReturn->next = NULL;
 
 	return toReturn;
@@ -80,9 +79,7 @@ bool enqueue(Queue *queue, void *data) {
 		// When a queue is empty, its front node is also its back node
 		queue->front = toEnqueue;
 	} else {
-		// Make the new node and the previous node that was at the end
-		// point to eachother
-		toEnqueue->previous = queue->back;
+		// Add the new node to the back of the queue
 		queue->back->next = toEnqueue;
 	}
 	
@@ -108,7 +105,6 @@ void *dequeue(Queue *queue) {
 	} else {
 		// There was 2 or more nodes in the queue
 		queue->front = queue->front->next;
-		queue->front->previous = NULL;
 	}
 
 	free(front);
