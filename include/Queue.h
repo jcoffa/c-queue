@@ -29,7 +29,7 @@ typedef struct queueNode {
 
 /*
  * Metadata top of the queue. 
- * Contains the function pointers for working with the abstracted list data.
+ * Contains the function pointers for working with the abstracted queue data.
  */
 typedef struct queueHead {
 	QueueNode *front;
@@ -53,7 +53,7 @@ typedef struct queueHead {
  * The Queue provides an interface to a generic collection of data. The two 
  * function pointers allow the struct to print and delete its data.
  * The (void *) arguments are to be casted into their proper data type (i.e. whatever
- * data type the tree will be holding) and do as follows:
+ * data type the queue will be holding) and do as follows:
  *
  *  char *printFunc(void *toPrint)  : return a string representation of `toPrint`
  *  void deleteFunc(void *toDelete) : free all memory associated with `toDelete`
